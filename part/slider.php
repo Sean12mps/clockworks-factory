@@ -1,32 +1,38 @@
 <?php
 $metas = array(
-	'title' 		=> '',
-	'description'	=> ''
+	'title' 		=> 'Clockworks',
+	'description'	=> 'A set of tools for prototyping your application',
 );
 
 $scripts_head = array(
 	'javascript' => array(
-		'jquery' => ''
+		'jquery' 			=> '',
+		'jquery-ui' 		=> '',
+		'bootstrap' 		=> '',
+		'bootstrap-dialog' 	=> '',
 	),
 	'css' => array(
-		'bootstrap' => ''
+		'bootstrap' 		=> '',
+		'bootstrap-dialog' 	=> '',
+		'jquery-ui' 		=> '',
+		'animate' 			=> '',
 	)
 );
 
 $scripts_foot = array(
-	'javascript' => array(
-		'jquery' => ''
-	),
-	'css' => array(
-		'bootstrap' => ''
-	)
+);
+
+$body_class = array(
+	'default',
+	'clockworks-main',
 );
 
 
 $args = array(
-	'metas' 		=> $metas,
-	'scripts_head' 	=> $scripts_head,
-	'scripts_foot' 	=> $scripts_foot
+	'html_metas' 		=> $metas,
+	'html_scripts_head' => $scripts_head,
+	'html_scripts_foot' => $scripts_foot,
+	'html_body_class'	=> $body_class,
 );
 
 config( $args );

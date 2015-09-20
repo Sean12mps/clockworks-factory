@@ -4,7 +4,7 @@ include_once( 'system/memory/vars.php' );
 
 class Clockworks {
 
-	private $name = 'parts';
+	private $name = 'clockworks-factory';
 
 	public function __construct () {
 

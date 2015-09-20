@@ -37,7 +37,6 @@ class Clockworks_Config {
 			$name = 'default';
 		}
 
-
 		$valid = Clockworks_Config::validate( $name, $part_url );
 
 		if ( $valid ) {
@@ -78,7 +77,7 @@ class Clockworks_Config {
 
 			$dir_name = clock_get_var( 'working_dir_name' );
 
-			include( 'part/'. $dir_name .'/index.php' );
+			include_once( 'part/'. $dir_name .'/index.php' );
 
 		} else {
 
