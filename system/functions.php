@@ -1,149 +1,151 @@
 <?php 
 
+
 // 	Defining Constants
-function clock_define ( $name, $value = null ) {
+if ( ! function_exists( 'define_constants' ) ) {
 
-	if ( is_array( $name ) && $value == null ) {
+	function define_constants ( $name, $value = null ) {
 
-		foreach ( $name as $key => $value ) {
+		if ( is_array( $name ) && $value == null ) {
 
-			if ( ! defined( $key ) ) {
+			foreach ( $name as $key => $value ) {
 
-				define( $key, $value ); 
+				if ( ! defined( $key ) ) {
+
+					define( $key, $value ); 
+				}
+			}
+
+		} else {
+
+			if ( ! defined( $name ) ) {
+
+				define( $name, $value ); 
+			}
+		}
+	};
+}
+
+
+// 	Doing actions
+if ( ! function_exists( 'do_action' ) ) {
+
+	function do_action ( $tag, $args = null ) {
+
+		$obj = $GLOBALS['Clockworks_Hooks'];
+
+		$functions = $obj->__get( $tag );
+
+		if ( $functions ) {
+
+			foreach ( $functions as $function => $function_args ) {
+
+				if ( is_null( $args ) ) {
+
+					$args = array();
+				} else {
+
+					$temp_args = array();
+
+					for ( $i = 0; $i < $function_args; $i++ ) {
+						
+						array_push( $temp_args, $args[$i] );
+					}
+
+					$args = array_values( $temp_args );
+				}
+
+				call_user_func_array( $function, $args );
+			}
+		}
+	}
+}
+
+
+// 	Adding Hooks
+if ( ! function_exists( 'add_action' ) ) {
+
+	function add_action ( $tag, $function_name, $param = null ) {
+		
+		$obj = $GLOBALS['Clockworks_Hooks'];
+
+		$action = $obj->__get( $tag );
+
+		$hooks = array();
+
+		if ( $action ) {
+
+			if ( is_array( $function_name ) ) {
+
+				$temp_name = get_class( $function_name[0] );
+
+				$temp_name .= '::' . $function_name[1];
+
+				$function_name = $temp_name;
+			}
+
+			if ( array_key_exists( $function_name, $action ) ) {
+
+				return false;
+
+			} else {
+
+				foreach ( $action as $key => $value ) {
+
+					$hooks[$key] = $value;
+				}
+
+				$hooks[$function_name] = $param;
+			}
+
+		} else {
+
+			if ( is_array( $function_name ) ) {
+
+				$temp_name = get_class( $function_name[0] );
+
+				$temp_name .= '::' . $function_name[1];
+
+				$hooks[$temp_name] = $param;
+			} else {
+
+				$hooks[$function_name] = $param;
 			}
 		}
 
-	} else {
+		$obj->__set( $tag, $hooks );
+	}
+}
 
-		if ( ! defined( $name ) ) {
 
-			define( $name, $value ); 
+// 	Search for filters and print default if not found
+if ( ! function_exists( 'apply_filters' ) ) {
+
+	function apply_filters ( $tag, $default ) {
+
+		$filters = clock_get_var( 'filters' );
+
+		if ( isset( $filters[$tag] ) ) {
+
+			$output = call_user_func( $filters[$tag], $default );
+
+			return $output;
 		}
-	}
-};
 
-
-// 	Get Variables
-function clock_get_var ( $key ) {
-
-	$obj = $GLOBALS['Clockworks_Variable'];
-	
-	$output = $obj->__get( $key );
-
-	return $output;
-}
-
-
-// 	Set Variables
-function clock_set_var ( $key, $value ) {
-
-	$obj = $GLOBALS['Clockworks_Variable'];
-
-	$obj->__set( $key, $value );
-}
-
-
-// 	Javascript Values
-function script_javascript () {
-
-}
-
-
-// 	Set Configurations
-function config ( $args ) {
-
-	foreach ( $args as $key => $value ) {
-
-		clock_set_var( $key, $value );
+		return $default;
 	}
 }
 
 
-// 	Deliver scripts html
-function parse_scripts ( $args ) {
+// 	Overides default value of filters
+if ( ! function_exists( 'add_filter' ) ) {
 
-	$html = '';
+	function add_filter ( $tag, $value ) {
 
-	$js_points = clock_get_var( 'javascript_points' );
+		$filters = clock_get_var( 'filters' );
 
-	$css_points = clock_get_var( 'css_points' );
+		$filters[$tag] = $value;
 
-	foreach ( $args as $key => $value ) {
-
-		switch ( $key ) {
-
-			case 'javascript':
-
-				$html .= '
-    	<!-- javascripts -->';
-
-				foreach ( $value as $key => $val ) {
-
-					if ( array_key_exists( $key, $js_points ) ) {
-
-						$html .= '
-    	<script type="text/javascript" src="'. $js_points[$key] .'" class="js-'. $key .'" ></script>
-';
-					} else {
-						
-						$html .= '
-    	<script type="text/javascript" src="'. $value[$key] .'" class="js-'. $key .'" ></script>
-';
-					}
-				}
-				break;
-
-
-			case 'css':
-
-				$html .= '
-    	<!-- css -->';
-
-				foreach ( $value as $key => $val ) {
-
-					if ( array_key_exists( $key, $css_points ) ) {
-
-						$html .= '
-    	<link rel="stylesheet" href="'. $css_points[$key] .'" class="css-'. $key .'">
-';
-					} else {
-						
-						$html .= '
-    	<link rel="stylesheet" href="'. $value[$key] .'" class="css-'. $key .'">
-';
-					}
-				}
-				break;
-		}
+		clock_set_var( 'filters', $filters );
 	}
-
-	return $html;
-}
-
-
-// 	Create Element
-function open_element ( $type, $attr = array() ) {
-
-	return Clockworks_Application::open_element( $type, $attr );
-}
-
-// 	Close Element
-function close_element ( $type, $attr = array() ) {
-
-	return Clockworks_Application::close_element( $type );
-}
-
-// 	Do indent
-function indent ( $times = 1 ) {
-	Clockworks_Application::indent( $times );
-}
-
-// 	Do enter
-function enter ( $times = 1 ) {
-	Clockworks_Application::enter( $times );
-}
-
-// 	Do layer
-function layer ( $times = 1 ) {
-	Clockworks_Application::layer( $times );
 }

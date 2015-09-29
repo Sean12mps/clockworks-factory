@@ -1,56 +1,98 @@
 <?php 
 
-include_once( 'system/memory/vars.php' );
+class Clockworks_Factory {
 
-class Clockworks {
 
-	private $name = 'clockworks-factory';
+	// 	Options
+	private $name 		= 'Clockworks-Factory';
+	private $version 	= '1.0b';
+
 
 	public function __construct () {
 
-		// 	Load helpers
-		include_once( 'system/functions.php' );
+		//	Loads all dependencies
+		$this->load_dependencies();
+
+		//	Define Constants
 		$this->define_constants();
 
-		// 	Load Includes
-		include_once( 'system/includes/class-Clockworks_Variable.php' );
-		include_once( 'system/includes/class-Clockworks_Application.php' );
-		include_once( 'system/includes/class-Clockworks_Config.php' );
-		include_once( 'system/includes/class-Clockworks_Statics.php' );
+		//	Core Works
+		$this->load_core();
 
-		// 	Clockworking
-		$this->define_config();
-		$this->build();
+		// 	Loads page assets
+		$this->load_assets();
+
+		// 	Define controls
+		$this->control();
+
+		// 	Render Page
+		$this->render();
 	}
+
+
+	public function load_dependencies () {
+
+		// 	Helper functions
+		include_once( 'system/functions.php' );
+
+		// 	Temporary memory
+		include_once( 'system/lib/class-Clockworks_Variable.php' );
+
+		// 	Element builder
+		include_once( 'system/lib/class-Clockworks_Application.php' );
+
+		// 	Hooks system
+		include_once( 'system/lib/class-Clockworks_Hooks.php' );
+
+		// 	Filter system
+		// include_once( 'system/lib/class-Clockworks_Filters.php' );
+	}
+
 
 	public function define_constants () {
 
-		$arr = array(
-			'SYSTEM_URL' 	=> dirname( __FILE__ ) .'/system',
-			'PART_URL' 		=> dirname( __FILE__ ) .'/part/',
-			'TITAN_SCRIPTS' => '/'. $this->name .'/assets/',
+		$constants = array(
+		// 	name 				value
+			'URL_INCLUDES' 	=> 	dirname( __FILE__ ) .'/system/includes/',
+			'URL_LIBRARY' 	=> 	dirname( __FILE__ ) .'/system/lib/',
+			'APP_NAME' 		=> 	$this->name,
+			'APP_VERSION' 	=> 	$this->version,
 		);
 
-		clock_define( $arr );
+		define_constants( $constants );
 	}
 
-	public function define_config () {
 
-		new Clockworks_Config();
+	public function load_core () {
 
-		Clockworks_Config::get_configuration( PART_URL );
+		// 	Static Elements
+		include_once( URL_INCLUDES . 'class-Clockworks_Statics.php' );
+
+		// 	Get any settings before statics is printed
+		do_action( 'init' );
+
+		// 	Initializing Classes
+		$this->statics = new Clockworks_Statics;
 	}
 
-	public function build () {
 
-		Clockworks_Statics::build( 'head' );
-
-		Clockworks_Statics::build( 'content' );
-
-		Clockworks_Config::mount();
-
-		Clockworks_Statics::build( 'panel' );
+	public function load_assets () {
 	}
+
+
+	public function control () {
+	}
+
+
+	public function render () {
+
+		do_action( 'header' );
+
+		do_action( 'content' );
+
+		do_action( 'footer' );
+	}
+
 }
 
-new Clockworks();
+new Clockworks_Factory;

@@ -1,120 +1,90 @@
 <?php 
-if ( ! defined( 'SYSTEM_URL' ) ) exit; // Exit if accessed directly
 
 class Clockworks_Statics {
 
+
 	public function __construct () {
 
-	}
-
-	public function build ( $cmd ) {
-
-		if ( $cmd != null ) {
-
-			call_user_func( 'Clockworks_Statics::'. $cmd .'' );
-		}
+		add_action( 'header', array( $this, 'print_head' ) );
+		add_action( 'content', array( $this, 'print_content_head' ) );
+		add_action( 'footer', array( $this, 'print_footer' ) );
 	}
 
 
+	public function print_head () {
 
+		$element = new Clockworks_Application;
 
+		echo $element->open( '!DOCTYPE html' );
 
+		$element->layer(0);
+		echo $element->open( 'html' );
 
+		$element->layer( 1 );
+		echo $element->open( 'head' );
 
-/*--------------------------------------------------------------------*/ 
-	public function head () {
+		$element->layer( 2 );
+		echo $element->open( 'meta', array( 'charset'=>'utf-8' ) );
 
-		$metas = clock_get_var( 'html_metas' );
+		$element->layer( 2 );
+		echo $element->open( 'meta', array( 'http-equiv'=>'X-UA-Compatible', 'content'=>'IE=edge' ) );
 
-		$scripts_head = clock_get_var( 'html_scripts_head' );
+		$element->layer( 2 );
+		echo $element->open( 'meta', array( 'name'=>"viewport", 'content'=>'width=device-width, initial-scale=1' ) );
 
-		$scripts_head = parse_scripts( $scripts_head );
+		$element->layer( 2 );
+		echo $element->open( 'title' );
+		echo apply_filters( 'project_title', APP_NAME );
+		echo apply_filters( 'project_version', ' - V' . APP_VERSION );
+		echo $element->close( 'title' );
 
-		echo open_element( '!DOCTYPE html' );
+		$element->layer( 2 );
+		do_action( 'scripts_head' );
 
-		enter();
-		echo open_element( 'head' );
-		enter();
+		$element->layer( 1 );
+		echo $element->close( 'head' );
 
-		layer(1);
-		echo open_element( 'meta', array( 'charset'=>'utf-8' ) );
-
-		layer(1);
-		echo open_element( 'meta', array( 'http-equiv'=>'X-UA-Compatible', 'content'=>'IE=edge' ) );
-
-		enter();
-		layer(1);
-		echo open_element( 'title');
-		echo $metas['title'];
-		echo close_element( 'title');
-		enter();
-
-		layer(1);
-		echo open_element( 'meta', array( 'name'=>"description", 'content'=>$metas['description'] ) );
-
-		layer(1);
-		echo open_element( 'meta', array( 'name'=>"viewport", 'content'=>'width=device-width, initial-scale=1' ) );
-
-		layer(1);
-		echo $scripts_head;
-
-		enter();
-		echo close_element( 'head' );
-		enter();
+		$element->enter();
 	}
 
 
+	public function print_content_head () {
 
+		$element = new Clockworks_Application;
 
+		$element->layer(1);
+		echo $element->open( 
+			'body', 
+			array(
+				'id' 	=> apply_filters( 'body_id', 'default-body-id' ),
+				'class'	=> apply_filters( 'body_class', 'default-body-class' )
+			)
+		);
 
-
-
-
-/*--------------------------------------------------------------------*/ 
-	public function content () {
-
-		$body_class = clock_get_var( 'html_body_class' );
-
-		$class = implode( ' ', $body_class );
-
-		$html = '';
-
-		$html .= '
-<body class="'. $class .'">
-';
-
-		echo $html;
-	}
-
-
-
-
-
-
-
-
-/*--------------------------------------------------------------------*/ 
-	public function panel () {
-
-		$scripts_foot = clock_get_var( 'html_scripts_foot' );
-
-		$scripts_foot = parse_scripts( $scripts_foot );
-
-		$html = '';
-
-		$html .= '
-	'. $scripts_foot .'
-</body>
-';
+		$element->layer(3);
+		do_action( 'content_header' );
 		
-		echo $html;
+		$element->layer(3);
+		do_action( 'content_body' );
 	}
 
 
+	public function print_footer () {
+
+		$element = new Clockworks_Application;
 
 
+		$element->layer(3);
+		do_action( 'content_footer' );
 
+		$element->layer(3);
+		do_action( 'scripts_footer' );
 
+		$element->layer(1);
+		echo $element->close( 'body' );
 
-
+		$element->layer(0);
+		echo $element->close( 'html' );
+	}
 }
+
